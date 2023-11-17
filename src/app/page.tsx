@@ -1,10 +1,16 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import { createClientComponentClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers';
+import AuthButton from './components/auth-button'
 
-export default function Home() {
+export default async function Home() {
+  const supabase = createServerComponentClient({cookies});
+  const { data: tweets}  = await supabase.from('tweets').select();
+
   return (
-    <main className={styles.main}>
-      hello
-    </main>
+    <>
+      <AuthButton/>
+      <pre>{JSON.stringify(tweets, null, 2)}</pre>
+    </>
+  
   )
 }
