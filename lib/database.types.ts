@@ -9,6 +9,71 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      likes: {
+        Row: {
+          created_at: string
+          id: number
+          tweet_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          tweet_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          tweet_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_tweet_id_fkey"
+            columns: ["tweet_id"]
+            isOneToOne: false
+            referencedRelation: "tweets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          id: string
+          name: string | null
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          id: string
+          name?: string | null
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string
+          name?: string | null
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       tweets: {
         Row: {
           created_at: string
@@ -33,7 +98,7 @@ export interface Database {
             foreignKeyName: "tweets_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]

@@ -1,25 +1,37 @@
-import { createClientComponentClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import AuthButton from './components/auth-button-server'
 
-export default async function Home() {
-  const supabase = createServerComponentClient<Database>({cookies});
+import NewTweet from './components/new-tweet';
+import Tweets from './components/tweets';
 
-  const { data: {session} } = await supabase.auth.getSession();
+export default async function Home() {
+  const supabase = createServerComponentClient<Database>({ cookies });
+
+  const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
     redirect('/login')
   }
-  const { data: tweets}  = await supabase.from('tweets').select('*, profiles(*)');
+  const { data } = await supabase
+    .from('tweets')
+    .select('*, author: profiles(*), likes(user_id)')
+    .order('created_at', { ascending: false })
 
-  console.log('data: ', tweets)
+  const tweets = data?.map((tweet) => ({
+    ...tweet,
+    isUserLikedTweet: !!tweet.likes.find((like) => like.user_id === session.user.id),
+    likes: tweet.likes.length
+  })) ?? [];
+
   return (
     <>
-      <AuthButton/>
-      <pre>{JSON.stringify(tweets, null, 2)}</pre>
+      <AuthButton />
+      <NewTweet />
+      <Tweets tweets={tweets}/>
     </>
-  
+
   )
 }
